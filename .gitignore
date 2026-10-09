@@ -1,0 +1,11 @@
+*.whl
+.venv/
+__pycache__/
+
+# Raw satellite files: large, can always be re-downloaded
+VIIRS/
+*.h5
+
+# Generated output
+figures/
+*.log
