@@ -12,6 +12,9 @@ def main():
     data["month"] = pd.to_datetime((data["month"]), format = "%Y-%m")
     figure_directory.mkdir(exist_ok=True)
 
+    plot_each_country(data)
+    plot_countries_together(data)
+
 def plot_each_country(data):
     for country, group in data.groupby("country"):
         group = group.sort_values("month")
@@ -41,9 +44,9 @@ def plot_each_country(data):
 def plot_countries_together(data):
     # Each country scaled so its pre-takeover average = 100, so they share an axis
     pre_average = (
-        data[data["month"] < takeover].groupby("country")["winsorized_mean"].mean()
+        data[data["month"] < takeover].groupby("country")["outcome"].mean()
     )
-    data["index"] = 100 * data["winsorized_mean"] / data["country"].map(pre_average)
+    data["index"] = 100 * data["outcome"] / data["country"].map(pre_average)
 
     table = data.pivot(index="month", columns="country", values="index")
     axis = table.plot(figsize=(11, 5))
@@ -51,7 +54,6 @@ def plot_countries_together(data):
     axis.set_ylabel("Lights (pre-takeover average = 100)")
     axis.figure.tight_layout()
     axis.figure.savefig(figure_directory / "all_countries_indexed.png", dpi=150)
-
-
+    
 if __name__ == "__main__":
     main()

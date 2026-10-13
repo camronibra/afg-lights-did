@@ -29,7 +29,7 @@ countries = (
 afghanistan_bbox = (60.0, 29.0, 78.0, 38.5)
 study_start = date(2018, 1, 1)
 study_end = date(2023, 12, 31) 
-month_limit = 2 # will set to 2 while testing; None = all months 
+month_limit = None  
 
 boundary_file = Path("data/boundaries/ne_10m_admin_0_sovereignty.shp")
 output_file = Path("data/viirs_monthly.csv")
