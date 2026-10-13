@@ -1,0 +1,90 @@
+OLS estimation, Dep. Var.: log_lights
+Observations: 442
+Fixed-effects: country^calendar_month: 81,  month: 72
+Standard-errors: Clustered (country) 
+              Estimate Std. Error  t value   Pr(>|t|)    
+treated:post -0.732163   0.113674 -6.44093 0.00035329 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+RMSE: 0.169028     Adj. R2: 0.965735
+                 Within R2: 0.327539
+treated:post 
+  -0.5191323 
+pdf 
+  2 
+pdf 
+  2 
+Afghanistan Philippines    Pakistan  Kyrgyzstan  Tajikistan  Uzbekistan 
+-0.73216306 -0.26877239 -0.21051634 -0.15481647 -0.08992927 -0.08518127 
+ Bangladesh       Nepal 
+-0.05909330  0.86159277 
+[1] 0.25
+[1] 0.125
+[1] 0.125
+OLS estimation, Dep. Var.: log_lights
+Observations: 242
+Fixed-effects: country^calendar_month: 77,  month: 40
+Standard-errors: Clustered (country) 
+             Estimate Std. Error  t value Pr(>|t|) 
+treated:post  -0.0937    0.05905 -1.58679  0.15658 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+RMSE: 0.091468     Adj. R2: 0.98778 
+                 Within R2: 0.027561
+                       feols(log(lit_sum..                 did
+                                    > 1 nW       > 2 nW (main)
+Dependent Var.:             log(lit_sum_1)          log_lights
+                                                              
+treated x post         -0.6908*** (0.1126) -0.7322*** (0.1137)
+Fixed-Effects:         ------------------- -------------------
+country-calendar_month                 Yes                 Yes
+month                                  Yes                 Yes
+______________________ ___________________ ___________________
+S.E.: Clustered                by: country         by: country
+Observations                           442                 442
+R2                                 0.97603             0.97754
+Within R2                          0.30772             0.32754
+
+                       feols(log(lit_sum...1 feols(log_lights..
+                                      > 5 nW        No Pakistan
+Dependent Var.:               log(lit_sum_5)         log_lights
+                                                               
+treated x post           -0.8276*** (0.1225) -0.7671** (0.1346)
+Fixed-Effects:           ------------------- ------------------
+country-calendar_month                   Yes                Yes
+month                                    Yes                Yes
+______________________   ___________________ __________________
+S.E.: Clustered                  by: country        by: country
+Observations                             442                371
+R2                                   0.97641            0.96747
+Within R2                            0.33260            0.36396
+
+                       feols(log_lights .. feols(log_lights ...1
+                               No Aug 2021       No May-Jul 2021
+Dependent Var.:                 log_lights            log_lights
+                                                                
+treated x post         -0.7351*** (0.1162)   -0.7559*** (0.1179)
+Fixed-Effects:         -------------------   -------------------
+country-calendar_month                 Yes                   Yes
+month                                  Yes                   Yes
+______________________ ___________________   ___________________
+S.E.: Clustered                by: country           by: country
+Observations                           435                   422
+R2                                 0.97790               0.97724
+Within R2                          0.33082               0.34154
+
+                       feols(log_lights ...2 feols(log_lights ...3
+                                    No Nepal            All months
+Dependent Var.:                   log_lights            log_lights
+                                                                  
+treated x post           -0.6268*** (0.0318)   -0.7652*** (0.1328)
+Fixed-Effects:           -------------------   -------------------
+country-calendar_month                   Yes                   Yes
+month                                    Yes                   Yes
+______________________   ___________________   ___________________
+S.E.: Clustered                  by: country           by: country
+Observations                             388                   576
+R2                                   0.99267               0.93882
+Within R2                            0.62383               0.13685
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
