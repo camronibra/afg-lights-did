@@ -26,4 +26,4 @@ figures/
 paper/note.html
 paper/note.pdf
 paper/note_files/
-paper/.quarto/
+.quarto/

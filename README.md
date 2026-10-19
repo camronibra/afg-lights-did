@@ -2,8 +2,6 @@
 
 Did the August 2021 Taliban takeover reduce economic activity in Afghanistan? This project measures it with **satellite nighttime lights** and a **difference-in-differences** design: Afghanistan against seven comparison countries, monthly, 2018–2023.
 
-> The repo is still called `afg-remittances-did` because the project started as a remittances question. Remittances are now the *motivation*. The outcome is nighttime lights.
-
 ## Headline result
 
 | | |
