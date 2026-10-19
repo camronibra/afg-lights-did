@@ -1,6 +1,0 @@
-#!/bin/sh
-exec /opt/conda/bin/sqlite3 \
-    -cmd '.output /dev/null' \
-    -cmd '.dbconfig dqs_dml on' \
-    -cmd '.output stdout' \
-    "$@"

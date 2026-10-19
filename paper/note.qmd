@@ -1,0 +1,266 @@
+---
+title: "Lights Out in Afghanistan"
+subtitle: "Effects of the 2021 Taliban Takeover"
+author:
+  - name: Camron Ibrahimi
+    email: IbrahimiC@cardiff.ac.uk
+date: today
+abstract: |
+  After the Taliban took Kabul in August 2021, Afghanistan lost most foreign
+  aid, access to its central bank reserves and its links to the international
+  banking system. This note measures the economic consequences with satellite
+  nighttime lights from NASA's Black Marble monthly product for 2018–2023.
+  A difference-in-differences design compares Afghanistan with seven
+  countries in South, Central and Southeast Asia. Afghanistan's lit
+  radiance falls by about 52% relative to the comparison countries, and the
+  decline persists for at least two years. Any pre-takeover drift is small
+  next to the post-takeover drop, and the result holds across radiance
+  thresholds and sample restrictions. A permutation test finds that no comparison country
+  shows a larger decline.
+
+# NOTE: the abstract is plain text, so if a number changes, update it by hand.
+# Every number in the body below is computed live from the analysis.
+keywords: [Afghanistan, nighttime lights, difference-in-differences, sanctions]
+bibliography: references.bib
+number-sections: true
+format:
+  html:
+    toc: true
+    embed-resources: true   # one self-contained .html file, easy to host
+    other-links:
+      - text: Code and data (GitHub)
+        href: https://github.com/camronibra/afg-remittances-did
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fontsize: 11pt
+    colorlinks: true
+execute:
+  echo: false     # readers see results, not code (the code lives in the repo)
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+source("../analysis.R", chdir = TRUE)
+
+library(knitr)
+
+pct <- function(b) round(100 * (exp(b) - 1))   # log points -> % change
+r2  <- function(x) sprintf("%.2f", x)
+
+b_main   <- coef(did)[["treated:post"]]
+se_main  <- se(summary(did, vcov = ~country))[["treated:post"]]
+n_ctry   <- length(unique(panel$country))
+n_months <- length(unique(panel$month))
+n_drop   <- nrow(panel_all) - nrow(panel)
+
+es_coef  <- coef(es)            # yearly event-study estimates
+names(es_coef) <- sub(".*::(-?[0-9]+):.*", "\\1", names(es_coef))
+
+afg_rank <- rank(effects)[["Afghanistan"]]   # 1 = biggest drop of all countries
+
+placebo_time <- summary(
+  feols(log_lights ~ treated:post | country^calendar_month + month,
+        data = fake_time),
+  vcov = ~country
+)
+b_placebo <- coef(placebo_time)[["treated:post"]]
+p_placebo <- pvalue(placebo_time)[["treated:post"]]
+```
+
+# Introduction
+
+On 15 August 2021, Taliban forces entered Kabul and the internationally
+recognised government of the Islamic Republic of Afghanistan collapsed. That
+government had been backed, financed and protected by the United States and
+its NATO allies. The economic shock that followed came mainly from the loss
+of that support, not from the fighting. Donor grants, which had funded most
+public spending, were suspended. Afghanistan's central bank lost access to its
+reserves held abroad, and correspondent banks cut ties with the Afghan
+financial system, disrupting trade payments and the remittances many
+households depended on [@worldbank2022adu].
+
+Measuring what followed is hard, because official statistics largely
+stopped. This note uses an outcome that does not depend on the Afghan state:
+light visible from space at night. Nighttime lights track economic activity
+well where national accounts are weak or missing
+[@henderson2012; @chen2011].
+
+This note compares Afghanistan's lights with those of `r n_ctry - 1`
+comparison countries before and after the takeover. The main estimate is a
+**`r abs(pct(b_main))`%** decline in lit radiance relative to the comparison
+group. The fall begins with the Taliban offensive in mid-2021 and had not
+reversed by the end of 2023.
+
+# Data {#sec-data}
+
+**Nighttime lights.** NASA's Black Marble VNP46A3 monthly product
+[@roman2018], which corrects VIIRS radiance for moonlight, atmosphere and
+cloud cover. The panel covers `r n_months` months (January 2018 to December
+2023) for `r n_ctry` countries. National boundaries come from Natural Earth.
+
+**Measuring "lights".** Most of Afghanistan is dark, so averages over all
+pixels are dominated by noise. The product records radiance below 0.5 nW as
+zero and a large number of faint background pixels just above that floor
+made the national mean jump in 2023, while brighter, clearly lit areas stayed
+flat. The outcome is therefore the **log of total radiance from pixels
+brighter than 2 nW**, which in practice captures settlements. Thresholds of
+1 nW and 5 nW give similar results (@sec-robust).
+
+**Coverage.** Some months have many missing pixels, mainly winter months in
+Kyrgyzstan and Tajikistan, where snow and cloud block the satellite.
+Country-months with fewer than 80% valid pixels are dropped. This removes
+`r n_drop` of `r nrow(panel_all)` observations. Keeping them changes little.
+
+**Comparison countries.** Bangladesh, Kyrgyzstan, Nepal, Pakistan, the
+Philippines, Tajikistan and Uzbekistan. These are lower- and middle-income
+countries in or near the region that also rely on remittances.
+
+```{r}
+#| label: fig-index
+#| fig-cap: "Lit radiance (> 2 nW) indexed to each country's pre-takeover mean. Afghanistan in red. Dashed line: August 2021."
+include_graphics("../figures/indexed_lights.png")
+```
+
+# Empirical strategy
+
+The main specification is the difference-in-differences model
+
+$$
+\log L_{ct} = \alpha_{c,m(t)} + \lambda_t + \beta \,(\text{Afghanistan}_c \times \text{Post}_t) + \varepsilon_{ct}
+$$
+
+where $L_{ct}$ is lit radiance in country $c$ and month $t$, and
+$\text{Post}_t$ equals one from August 2021. The country-by-calendar-month
+effects $\alpha_{c,m(t)}$ absorb each country's own seasonal pattern (for
+example festival lighting or winter heating). The month effects
+$\lambda_t$ absorb shocks common to all countries, such as COVID-19. $\beta$
+measures how much Afghanistan's lights changed after the takeover beyond
+the change in the comparison countries.
+
+To check the timing, an event study replaces $\text{Post}_t$ with
+indicators for each year relative to the takeover, where each year runs
+from August to July. The reference year is
+August 2019 to July 2020, well before the 2021 offensive.
+
+**Inference.** With one treated country and `r n_ctry - 1` controls,
+conventional clustered standard errors are unreliable
+[@conley2011; @cameron2008]. The main evidence is a
+permutation test in the spirit of @abadie2010: each comparison country in
+turn is assigned a placebo treatment, which shows how unusual Afghanistan's
+estimate is.
+
+# Results
+
+```{r}
+#| label: tbl-main
+#| tbl-cap: "Difference-in-differences estimates. Standard errors clustered by country in parentheses."
+# Each row is one model. robust_models is defined here so the table and the
+# text use exactly the same estimates.
+spec <- log_lights ~ treated:post | country^calendar_month + month
+robust_models <- list(
+  "Main (> 2 nW)"           = did,
+  "> 1 nW"                  = feols(log(lit_sum_1) ~ treated:post | country^calendar_month + month, panel),
+  "> 5 nW"                  = feols(log(lit_sum_5) ~ treated:post | country^calendar_month + month, panel),
+  "Drop Pakistan"           = feols(spec, filter(panel, country != "Pakistan")),
+  "Drop Nepal"              = feols(spec, filter(panel, country != "Nepal")),
+  "Drop Aug 2021"           = feols(spec, filter(panel, month != "2021-08")),
+  "Drop May–Jul 2021"       = feols(spec, filter(panel, !month %in% c("2021-05", "2021-06", "2021-07"))),
+  "No coverage filter"      = feols(spec, panel_all)
+)
+
+# Pull estimate, SE and N out of each model into one data frame
+rows <- lapply(robust_models, function(m) {
+  s <- summary(m, vcov = ~country)
+  b <- coef(s)[["treated:post"]]
+  data.frame(
+    Estimate   = sprintf("%.3f (%.3f)", b, se(s)[["treated:post"]]),
+    `% change` = paste0(pct(b), "%"),
+    N          = nobs(m),
+    check.names = FALSE
+  )
+})
+tab <- do.call(rbind, rows)
+kable(tab, align = "rrr")
+```
+
+@tbl-main reports the estimates. In the main specification, Afghanistan's
+lit radiance falls by `r r2(abs(b_main))` log points (standard error
+`r r2(se_main)`) relative to the comparison countries, a decline of about
+**`r abs(pct(b_main))`%**. @fig-index shows where this comes from:
+Afghanistan tracks the other countries until mid-2021, then drops and stays
+down while the comparison countries recover from COVID-19.
+
+```{r}
+#| label: fig-es
+#| fig-cap: "Event study: Afghanistan minus comparison countries, by year relative to the takeover (August–July years). Reference year −2 (Aug 2019–Jul 2020). Bars are 95% confidence intervals clustered by country."
+include_graphics("../figures/event_study.png")
+```
+
+@fig-es shows the timing. The two earliest years lie slightly above zero
+(`r r2(es_coef[["-4"]])` and `r r2(es_coef[["-3"]])`), and year −1, which
+includes the start of the Taliban offensive, is `r r2(es_coef[["-1"]])`.
+After the takeover the estimates drop to between `r r2(min(es_coef[c("0","1","2")]))`
+and `r r2(max(es_coef[c("0","1","2")]))` and stay there in all three
+post-takeover years (the last observed only through December 2023). The
+effect shows no sign of fading.
+
+# Inference and robustness {#sec-robust}
+
+**Permutation test.** When "treatment" is reassigned to each country in
+turn, Afghanistan's estimate ranks `r afg_rank` of `r n_ctry`: no comparison
+country shows a larger decline. The one-sided permutation p-value is
+`r sprintf("%.3f", mean(effects <= effects[["Afghanistan"]]))`. This is the smallest
+value possible with `r n_ctry` countries, so it is the strongest evidence
+this test can give. It should be read as "Afghanistan is the most extreme
+case in the sample", not simply as significance at conventional levels.
+
+**Placebo in time.** Using only data up to April 2021 and pretending the
+takeover happened in August 2019 gives an estimate of `r r2(b_placebo)`
+(p = `r r2(p_placebo)`), close to zero, as it should be if nothing
+unusual was happening to Afghanistan before 2021.
+
+**Specification checks.** @tbl-main shows that the result holds for
+radiance thresholds of 1, 2 and 5 nW, without the coverage filter, and when
+dropping the takeover month or the offensive months of May–July 2021. Dropping
+Pakistan or Nepal also leaves the estimate largely unchanged.
+
+# Limitations
+
+- **Few countries.** With only one treated country, the inference relies on a
+  permutation test with only `r n_ctry` possible outcomes. Clustered
+  standard errors with so few clusters can be misleadingly small. The
+  "Drop Nepal" row, with an unusually small standard error, is an example.
+- **Mild pre-trend.** Afghanistan's lights were drifting slightly down
+  relative to the comparison countries before 2021. The drift is small next
+  to the post-takeover drop, but it means that part of the estimate could reflect
+  an earlier decline.
+- **Contaminated controls.** Pakistan borders Afghanistan, trades heavily
+  with it and received refugees after the takeover, so it was affected
+  too. Nepal's lights grew unusually fast over the period. Neither country
+  drives the result (@tbl-main), but no comparison group is perfect.
+- **What lights measure.** Lights capture electricity use and visible
+  economic activity, not income directly. Some of the decline may reflect
+  cuts in electricity imports or public lighting, not only lower private
+  activity.
+- **Mechanisms.** This design measures the combined effect of the takeover.
+  It cannot separate the aid cut-off, the banking freeze, the disruption to
+  remittances and the changes in governance.
+
+# Conclusion
+
+Satellite data show a large and lasting fall in Afghanistan's economic
+activity after August 2021: lit radiance fell by about
+`r abs(pct(b_main))`% relative to comparable countries, with no recovery
+by the end of 2023. Because the outcome is measured from space, this
+estimate does not depend on official statistics, which largely stopped
+after the takeover. A natural next step is to use subnational data,
+comparing provinces that relied more on aid or remittances before 2021, to
+separate the channels behind the decline.
+
+# References {.unnumbered}
+
+::: {#refs}
+:::

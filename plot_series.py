@@ -44,9 +44,9 @@ def plot_each_country(data):
 def plot_countries_together(data):
     # Each country scaled so its pre-takeover average = 100, so they share an axis
     pre_average = (
-        data[data["month"] < takeover].groupby("country")["outcome"].mean()
+        data[data["month"] < takeover].groupby("country")["lit_sum_2"].mean()
     )
-    data["index"] = 100 * data["outcome"] / data["country"].map(pre_average)
+    data["index"] = 100 * data["lit_sum_2"] / data["country"].map(pre_average)
 
     table = data.pivot(index="month", columns="country", values="index")
     axis = table.plot(figsize=(11, 5))
