@@ -1,12 +1,12 @@
 # Lights Out in Afghanistan
 
-Did the August 2021 Taliban takeover reduce economic activity in Afghanistan? This project measures it with **satellite nighttime lights** and a **difference-in-differences** design: Afghanistan against seven comparison countries, monthly, 2018–2023.
+Did the August 2021 Taliban takeover reduce economic activity in Afghanistan? This project measures it with satellite nighttime lights and a difference-in-differences design: Afghanistan against seven comparison countries, monthly, 2018–2023.
 
 ## Headline result
 
 | | |
 |---|---|
-| Main estimate | −0.73 log points, about a **52% fall** in lit radiance relative to the comparison countries |
+| Main estimate | −0.73 log points, about a 52% fall in lit radiance relative to the comparison countries |
 | Clustered SE (by country) | 0.11 (8 clusters, so treat it with caution) |
 | Permutation test | Afghanistan has the largest decline of all 8 countries (one-sided p = 0.125, the smallest value possible with 8 countries) |
 | Placebo (fake takeover Aug 2019) | −0.09, p = 0.16, close to zero as expected |
@@ -16,7 +16,7 @@ The full output is in `results.txt` and the write-up is in `paper/note.qmd`.
 
 ## Data
 
-- **Nighttime lights:** NASA Black Marble **VNP46A3** (monthly, collection 2), layer `AllAngle_Composite_Snow_Free`. Only pixels with quality flag 0 (good) are kept.
+- **Nighttime lights:** NASA Black Marble VNP46A3 (monthly, collection 2), layer `AllAngle_Composite_Snow_Free`. Only pixels with quality flag 0 (good) are kept.
 - **Boundaries:** Natural Earth 1:10m admin-0 sovereignty (`data/boundaries/`).
 - **Countries:** Afghanistan (treated). Controls: Bangladesh, Kyrgyzstan, Nepal, Pakistan, Philippines, Tajikistan, Uzbekistan.
 - **Period:** January 2018 to December 2023 (72 months × 8 countries).
